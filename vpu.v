@@ -84,7 +84,7 @@ module top();
                     if(`imm_mode)
                         GPR[`rdst] = GPR[`rsrc1] | `isrc;
                     else
-                        GPR[`rdst] = GPR[`rsrc1] | GPR[`rsc2];
+                        GPR[`rdst] = GPR[`rsrc1] | GPR[`rsrc2];
                 end
             `rand:
                 begin
