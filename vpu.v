@@ -15,6 +15,16 @@
 `define sub 5'b00011
 `define mul 5'b00100
 
+// logical ops
+// we use ror, since 'or' is already a keyword
+`define ror 5'b00101
+`define rand 5'b00110
+`define rxor 5'b00111
+`define rxnor 5'b01000
+`define rnand 5'b01001
+`define rnor 5'b01010
+`define rnot 5'b01011
+
 module top();
     reg [31:0] IR; // instruction register
     // fields: [31:27]-[26:22]-[21:17]-[16] -[15:11]- [10:0]
@@ -35,35 +45,89 @@ module top();
     begin
         // do a case statement on operation type
         case (`oper_type)
-            `movsgpr: begin
-                GPR[`rdst] = SGPR; // if movsgpr, need to store the value of SGPR into GPR
-            end
-            `mov: begin
-                if (`imm_mode)
-                    GPR[`rdst] = `isrc; // if imm_mode 1, then need an immediate
-                else
-                    GPR[`rdst] = GPR[`rsrc1];
-            end
-            `add: begin
-                if (`imm_mode)
-                    GPR[`rdst] = GPR[`rsrc1] + `isrc;
-                else
-                    GPR[`rdst] = GPR[`rsrc1] + GPR[`rsrc2];
-            end
-            `sub: begin
-                if (`imm_mode)
-                    GPR[`rdst] = GPR[`rsrc1] - `isrc;
-                else
-                    GPR[`rdst] = GPR[`rsrc1] - GPR[`rsrc2];
-            end
-            `mul: begin
-                if (`imm_mode)
-                    mul_res = GPR[`rsrc2] * `isrc;
-                else
-                    mul_res = GPR[`rsrc1] * GPR[`rsrc2];
-                GPR[`rdst] = mul_res[31:0];
-                SGPR = mul_res[63:32];
-            end
+            `movsgpr: 
+                begin
+                    GPR[`rdst] = SGPR; // if movsgpr, need to store the value of SGPR into GPR
+                end
+            `mov: 
+                begin
+                    if (`imm_mode)
+                        GPR[`rdst] = `isrc; // if imm_mode 1, then need an immediate
+                    else
+                        GPR[`rdst] = GPR[`rsrc1];
+                end
+            `add: 
+                begin
+                    if (`imm_mode)
+                        GPR[`rdst] = GPR[`rsrc1] + `isrc;
+                    else
+                        GPR[`rdst] = GPR[`rsrc1] + GPR[`rsrc2];
+                end
+            `sub: 
+                begin
+                    if (`imm_mode)
+                        GPR[`rdst] = GPR[`rsrc1] - `isrc;
+                    else
+                        GPR[`rdst] = GPR[`rsrc1] - GPR[`rsrc2];
+                end
+            `mul: 
+                begin
+                    if (`imm_mode)
+                        mul_res = GPR[`rsrc2] * `isrc;
+                    else
+                        mul_res = GPR[`rsrc1] * GPR[`rsrc2];
+                    GPR[`rdst] = mul_res[31:0];
+                    SGPR = mul_res[63:32];
+                end
+            `ror: 
+                begin
+                    if(`imm_mode)
+                        GPR[`rdst] = GPR[`rsrc1] | `isrc;
+                    else
+                        GPR[`rdst] = GPR[`rsrc1] | GPR[`rsc2];
+                end
+            `rand:
+                begin
+                    if(`imm_mode)
+                        GPR[`rdst] = GPR[`rsrc1] & `isrc;
+                    else
+                        GPR[`rdst] = GPR[`rsrc1] & GPR[`rsrc2];
+                end
+            `rxor: 
+                begin
+                    if(`imm_mode)
+                        GPR[`rdst] = GPR[`rsrc1] ^ `isrc;
+                    else   
+                        GPR[`rdst] = GPR[`rsrc1] ^ GPR[`rsrc2];
+                end
+            `rxnor:
+                begin
+                    if(`imm_mode)
+                        GPR[`rdst] = GPR[`rsrc1] ~^ `isrc;
+                    else
+                        GPR[`rdst] = GPR[`rsrc1] ~^ GPR[`rsrc2];
+                end
+            `rnand:
+                begin
+                    if(`imm_mode)
+                        GPR[`rdst] = ~(GPR[`rsrc1] & `isrc);
+                    else
+                        GPR[`rdst] = ~(GPR[`rsrc1] & GPR[`rsrc2]);
+                end
+            `rnor:
+                begin
+                    if(`imm_mode)
+                        GPR[`rdst] = ~(GPR[`rsrc1] | `isrc);
+                    else
+                        GPR[`rdst] = ~(GPR[`rsrc1] | GPR[`rsrc2]);
+                end
+            `rnot:
+                begin
+                    if(`imm_mode)
+                        GPR[`rdst] = ~(`isrc);
+                    else
+                        GPR[`rdst] = ~(GPR[`rsrc1]);
+                end
         endcase
     end
 endmodule
